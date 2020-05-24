@@ -35,7 +35,10 @@ class Company(models.Model):
                                    default=None,
                                    null=True,
                                    blank=True)
-    employee_count = models.IntegerField()
+    employee_count = models.CharField(max_length=20,
+                                      default=None,
+                                      null=True,
+                                      blank=True)
     owner = models.ForeignKey(User,
                               related_name="company",
                               on_delete=models.CASCADE,
