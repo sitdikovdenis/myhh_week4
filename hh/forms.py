@@ -47,23 +47,6 @@ class ApplicationForm(forms.Form):
                                    widget=forms.Textarea(attrs={'class': 'form-control'}))
 
 
-class CompanyEditForm2(forms.Form):
-    name = forms.CharField(label='Название компании', max_length=256, min_length=2,
-                           widget=forms.TextInput(attrs={'class': 'form-control'}))
-
-    logo = forms.ImageField(label='Логотип',
-                            )
-
-    employee_count = forms.CharField(max_length=20, label='Количество человек в компании',
-                                     widget=forms.TextInput(attrs={'class': 'form-control'}))
-
-    location = forms.CharField(max_length=256, label='География',
-                               widget=forms.TextInput(attrs={'class': 'form-control'}))
-
-    description = forms.CharField(max_length=4096, label='Информация о компании',
-                                  widget=forms.Textarea(attrs={'class': 'form-control'}))
-
-
 class CompanyEditForm(ModelForm):
     logo = forms.ImageField(allow_empty_file=True, required=False)
 
