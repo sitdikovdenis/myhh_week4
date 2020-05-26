@@ -6,25 +6,25 @@ from django.urls import path
 
 from hh.views import ApplicationSendView, CategorieView, CompanieView, LoginView, MainView, MyCompanyView, \
     MyVacancieView, \
-    MyVacanciesView, \
+    MyCompanyVacanciesView, \
     MySignupView, \
     VacanciesView, \
     VacancyView
 
 urlpatterns = [
-    path('', MainView.as_view()),
+    path('', MainView.as_view()),  # главная
     path('vacancies', VacanciesView.as_view()),
-    path('vacancies/cat/<str:categorie>', CategorieView.as_view()),
-    path('companies/<int:companie_id>', CompanieView.as_view()),
-    path('vacancies/<int:vacancy_id>', VacancyView.as_view()),
-    path('admin/', admin.site.urls),
-    path('vacancies/<str:vacancy_id>/sent', ApplicationSendView.as_view()),
-    path('mycompany', MyCompanyView.as_view()),
-    path('mycompany/vacancies', MyVacanciesView.as_view()),
-    path('mycompany/vacancies/<int:vacancy_id>', MyVacancieView.as_view()),
-    path('login', LoginView.as_view()),
-    path('register', MySignupView.as_view(), name="register"),
-    path('logout', LogoutView.as_view()),
+    path('vacancies/cat/<str:categorie>', CategorieView.as_view()),  # вакансии по категории
+    path('companies/<int:companie_id>', CompanieView.as_view()),  # компания
+    path('vacancies/<int:vacancy_id>', VacancyView.as_view()),  # вакансия
+    path('admin/', admin.site.urls),  # админка
+    path('vacancies/<str:vacancy_id>/sent', ApplicationSendView.as_view()),  # отпрвка отклика на вакансию
+    path('mycompany', MyCompanyView.as_view()),  # моя компания
+    path('mycompany/vacancies', MyCompanyVacanciesView.as_view()),  # вакансии моей компании
+    path('mycompany/vacancies/<str:vacancy_id>', MyVacancieView.as_view()),  # одна вакансия моей компании
+    path('login', LoginView.as_view()),  # логин
+    path('register', MySignupView.as_view(), name="register"),  # регистрация
+    path('logout', LogoutView.as_view()),  # выход
 ]
 
 if settings.DEBUG:

@@ -1,3 +1,5 @@
+import datetime
+
 from django.contrib.auth.views import LoginView
 from django.http import Http404, HttpResponseRedirect
 from django.shortcuts import render
@@ -5,8 +7,7 @@ from django.views import View
 from django.views.generic import CreateView
 
 from hh import models
-from myhh.settings import MEDIA_ROOT
-from hh.forms import ApplicationForm, CompanyEditForm, MyAuthenticationForm, SignUpForm
+from hh.forms import ApplicationForm, CompanyEditForm, MyAuthenticationForm, SignUpForm, VacancyEditForm
 
 
 def get_previous_page(request):
@@ -100,8 +101,6 @@ class MyCompanyView(View):
                 context={'title': 'Создать карточку компании | Джуманджи'}
             )
         else:
-            my_company_list = list(my_company_qs.values())[0]
-            print(my_company_list)
             return render(
                 request, 'hh/company-edit.html',
                 context={'title': 'Моя компания | Джуманджи',
@@ -114,38 +113,97 @@ class MyCompanyView(View):
         company_form = CompanyEditForm(request.POST, request.FILES)
 
         if company_form.is_valid():
-            company_form.logo = company_form.cleaned_data['logo']
+            # здесь мы сохраняем новую или существующую компанию
             if len(my_company_qs) == 0:
-                company_form.save()
+                company = company_form.save(commit=False)
+                company.owner = request.user
+                company.save()
             else:
                 company = my_company_qs.first()
                 company_form = CompanyEditForm(request.POST, request.FILES, instance=company)
                 company_form.save()
 
-            return HttpResponseRedirect(request.path)
+            return HttpResponseRedirect(request.path, )
         else:
-            print(company_form.errors)
+            # сюда мы попадем, если нажмем создать компанию
             return render(
                 request, 'hh/company-edit.html',
                 context={'title': 'Моя компания | Джуманджи',
                          'form': CompanyEditForm(initial={'owner': request.user})}
-        )
+            )
 
 
-class MyVacanciesView(View):
+# вакансии моей компании
+class MyCompanyVacanciesView(View):
     def get(self, request, *args, **kwargs):
-        return render(
-            request, 'hh/vacancy-list.html',
-            context={}
-        )
+        my_company_qs = models.Company.objects.filter(owner=request.user)
+        if len(my_company_qs) == 0:
+            return HttpResponseRedirect("/mycompany")
+        else:
+            my_company = my_company_qs.first()
+            vacancies = models.Vacancy.objects.filter(company=my_company)
+            return render(
+                request, 'hh/vacancy-list.html',
+                context={
+                    'title': 'Вакансии компании | Джуманджи',
+                    'form': CompanyEditForm(instance=my_company_qs.first()),
+                    'vacancies': vacancies
+                }
+            )
 
 
+# одна конкретная вакансия моей компании
 class MyVacancieView(View):
     def get(self, request, vacancy_id, *args, **kwargs):
-        return render(
-            request, 'hh/vacancy-list.html',
-            context={}
-        )
+        vacancy_qs = models.Vacancy.objects.filter(id=int(vacancy_id), company__owner=request.user)
+        if len(vacancy_qs) == 0:
+            raise Http404
+        else:
+            return render(
+                request, 'hh/vacancy-edit.html',
+                context={'title': 'Вакансии компании | Джуманджи',
+                         'form': VacancyEditForm(instance=vacancy_qs.first())}
+            )
+
+    def post(self, request, vacancy_id, *args, **kwargs):
+        my_company_qs = models.Company.objects.filter(owner=request.user)
+        #  считаем, что на эту страницу можно попасть, только если у тебя есть компания
+        my_company = my_company_qs.first()
+        if vacancy_id == "create":
+            vacancy_form = VacancyEditForm(request.POST, )
+
+            if vacancy_form.is_valid():
+                vacancy = vacancy_form.save(commit=False)
+                vacancy.published_at = datetime.datetime.now()
+                vacancy.company = my_company
+                vacancy.save()
+                return HttpResponseRedirect("/mycompany/vacancies/" + str(vacancy.id))
+            else:
+                pass
+            return render(
+                request, 'hh/vacancy-edit.html',
+                context={'form': VacancyEditForm()}
+            )
+        else:
+            vacancy_qs = models.Vacancy.objects.filter(id=int(vacancy_id))
+            vacancy_form = VacancyEditForm(request.POST)
+
+            if vacancy_form.is_valid():
+                vacancy = vacancy_qs.first()
+                vacancy_form = VacancyEditForm(request.POST, request.FILES, instance=vacancy)
+                vacancy = vacancy_form.save()
+                vacancy.published_at = datetime.datetime.now()
+                vacancy.company = my_company
+                vacancy.save()
+
+                return HttpResponseRedirect(request.path)
+            else:
+                print(vacancy_form.errors)
+                return render(
+                    request, 'hh/company-edit.html',
+                    context={'title': 'Моя компания | Джуманджи',
+                             'form': CompanyEditForm()}
+                )
 
 
 class LoginView(LoginView):

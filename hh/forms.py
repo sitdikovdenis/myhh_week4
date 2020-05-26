@@ -36,15 +36,20 @@ class MyAuthenticationForm(AuthenticationForm):
         fields = ('username', 'password',)
 
 
-class ApplicationForm(forms.Form):
-    username = forms.CharField(label='Вас зовут', max_length=64, min_length=2,
-                               widget=forms.TextInput(attrs={'class': 'form-control'}))
-
-    phone = forms.CharField(max_length=50, label='Ваш телефон',
-                            widget=forms.TextInput(attrs={'class': 'form-control'}))
-
-    cover_letter = forms.CharField(max_length=8000, label='Сопроводительное письмо',
-                                   widget=forms.Textarea(attrs={'class': 'form-control'}))
+class ApplicationForm(ModelForm):
+    class Meta:
+        model = models.Application
+        fields = ['written_username', 'written_phone', 'written_cover_letter']
+        widgets = {
+            'written_username': forms.TextInput(attrs={'class': 'form-control'}),
+            'written_phone': forms.TextInput(attrs={'class': 'form-control'}),
+            'written_cover_letter': forms.Textarea(attrs={'class': 'form-control'}),
+        }
+        labels = {
+            'written_username': 'Вас зовут',
+            'written_phone': 'Ваш телефон',
+            'written_cover_letter': 'Сопроводительное письмо',
+        }
 
 
 class CompanyEditForm(ModelForm):
@@ -52,7 +57,7 @@ class CompanyEditForm(ModelForm):
 
     class Meta:
         model = models.Company
-        fields = ['name', 'logo', 'employee_count', 'location', 'description', 'owner']
+        fields = ['name', 'logo', 'employee_count', 'location', 'description']
         widgets = {
             'name': forms.TextInput(attrs={'class': 'form-control'}),
             'employee_count': forms.TextInput(attrs={'class': 'form-control'}),
@@ -68,4 +73,30 @@ class CompanyEditForm(ModelForm):
             'description': 'Информация о компании',
             'logo': 'Логотип',
             'owner': 'Владелец'
+        }
+
+
+class VacancyEditForm(ModelForm):
+    class Meta:
+        model = models.Vacancy
+        fields = ['title', 'specialty', 'salary_min', 'salary_max', 'skills', 'description']
+        widgets = {
+            'title': forms.TextInput(attrs={'class': 'form-control'}),
+            'specialty': forms.Select(attrs={'class': 'form-control'}, ),
+            'salary_min': forms.NumberInput(attrs={'class': 'form-control'}),
+            'salary_max': forms.NumberInput(attrs={'class': 'form-control'}),
+            'skills': forms.Textarea(attrs={'class': 'form-control',
+                                            'rows': 3,
+                                            'style': "color:#000;"}),
+            'description': forms.Textarea(attrs={'class': 'form-control',
+                                                 'rows': 13})
+
+        }
+        labels = {
+            'title': 'Название вакансии',
+            'specialty': 'Специализация',
+            'salary_min': 'Зарплата от',
+            'salary_max': 'Зарплата до',
+            'skills': 'Требуемые навыки',
+            'description': 'Описание вакансии',
         }

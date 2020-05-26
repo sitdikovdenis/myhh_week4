@@ -16,6 +16,9 @@ class Specialty(models.Model):
     height_field = models.PositiveIntegerField(default=0)
     width_field = models.PositiveIntegerField(default=0)
 
+    def __str__(self):
+        return self.title
+
 
 class Company(models.Model):
     name = models.CharField(max_length=256)
