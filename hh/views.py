@@ -49,6 +49,8 @@ class CategorieView(View):
 
 class CompanieView(View):
     def get(self, request, companie_id, *args, **kwargs):
+        if len(models.Company.objects.filter(id=companie_id)) == 0:
+            raise Http404
         return render(
             request, 'hh/company.html',
             context={"company": models.Company.objects.get(id=companie_id),
