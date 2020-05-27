@@ -119,7 +119,7 @@ class ResumeEditForm(ModelForm):
             'experience': forms.Textarea(attrs={'class': 'form-control',
                                                 'rows': 4,
                                                 'style': "color:#000;"}),
-            'portfolio': forms.URLInput(attrs={'class': 'form-control',}),
+            'portfolio': forms.URLInput(attrs={'class': 'form-control'}),
 
         }
         labels = {

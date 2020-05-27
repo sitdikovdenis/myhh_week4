@@ -51,5 +51,4 @@ specialties = [
     {"code": "products", "title": "Продукты"},
     {"code": "management", "title": "Менеджмент"},
     {"code": "testing", "title": "Тестирование"}
-
 ]
