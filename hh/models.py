@@ -30,7 +30,7 @@ class Company(models.Model):
                              height_field='height_field',
                              width_field='width_field',
                              default=None,
-                             null=True
+                             null=False
                              )
     height_field = models.PositiveIntegerField(default=0)
     width_field = models.PositiveIntegerField(default=0)
@@ -79,3 +79,30 @@ class Application(models.Model):
     user = models.ForeignKey(User,
                              related_name="applications",
                              on_delete=models.CASCADE)
+
+
+class Resume(models.Model):
+    STATUS_CHOICES = (('not_looking', 'Не ищу работу'),
+                      ('considering', 'Рассматриваю предложения'),
+                      ('looking', 'Ищу работу'))
+    GRADE_CHOICES = (('trainee', 'Стажер'),
+                     ('junior', 'Джуниор'),
+                     ('middle', 'Миддл'),
+                     ('signor', 'Синьор'),
+                     ('lead', 'Лид'))
+
+    user = models.ForeignKey(User,
+                             related_name="resume",
+                             on_delete=models.CASCADE)
+
+    name = models.CharField(max_length=30)
+    surname = models.CharField(max_length=30)
+    status = models.CharField(max_length=15, choices=STATUS_CHOICES, default='looking')
+    salary = models.IntegerField()
+    specialty = models.ForeignKey(Specialty,
+                                  related_name="resume",
+                                  on_delete=models.CASCADE)
+    grade = models.CharField(max_length=15, choices=GRADE_CHOICES, default='looking')
+    education = models.CharField(max_length=1024)
+    experience = models.CharField(max_length=4096)
+    portfolio = models.CharField(max_length=8000)

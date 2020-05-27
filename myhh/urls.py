@@ -7,7 +7,9 @@ from django.urls import path
 from hh.views import ApplicationSendView, CategorieView, CompanieView, LoginView, MainView, MyCompanyView, \
     MyVacancieView, \
     MyCompanyVacanciesView, \
+    MyResumeView, \
     MySignupView, \
+    SearchView, \
     VacanciesView, \
     VacancyView
 
@@ -25,6 +27,8 @@ urlpatterns = [
     path('login', LoginView.as_view()),  # логин
     path('register', MySignupView.as_view(), name="register"),  # регистрация
     path('logout', LogoutView.as_view()),  # выход
+    path('search', SearchView.as_view()),  # поиск
+    path('myresume', MyResumeView.as_view()),  # мое резюме
 ]
 
 if settings.DEBUG:

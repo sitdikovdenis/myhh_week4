@@ -64,7 +64,7 @@ class CompanyEditForm(ModelForm):
             'location': forms.TextInput(attrs={'class': 'form-control'}),
             'description': forms.Textarea(attrs={'class': 'form-control'}),
             'owner': forms.Textarea(attrs={'class': 'form-control'}),
-
+            'logo': forms.ImageField(required=True)
         }
         labels = {
             'name': 'Название компании',
@@ -99,4 +99,37 @@ class VacancyEditForm(ModelForm):
             'salary_max': 'Зарплата до',
             'skills': 'Требуемые навыки',
             'description': 'Описание вакансии',
+        }
+
+
+class ResumeEditForm(ModelForm):
+    class Meta:
+        model = models.Resume
+        fields = ['name', 'surname', 'status', 'salary', 'specialty', 'grade', 'education', 'experience', 'portfolio']
+        widgets = {
+            'name': forms.TextInput(attrs={'class': 'form-control'}),
+            'surname': forms.TextInput(attrs={'class': 'form-control'}),
+            'status': forms.Select(attrs={'class': 'form-control'}, ),
+            'salary': forms.NumberInput(attrs={'class': 'form-control'}),
+            'specialty': forms.Select(attrs={'class': 'form-control'}, ),
+            'grade': forms.Select(attrs={'class': 'form-control'}, ),
+            'education': forms.Textarea(attrs={'class': 'form-control',
+                                               'rows': 4,
+                                               'style': "color:#000;"}),
+            'experience': forms.Textarea(attrs={'class': 'form-control',
+                                                'rows': 4,
+                                                'style': "color:#000;"}),
+            'portfolio': forms.URLInput(attrs={'class': 'form-control',}),
+
+        }
+        labels = {
+            'name': 'Имя',
+            'surname': 'Фамилия',
+            'status': 'Готовность к работе',
+            'salary': 'Ожидаемое вознаграждение',
+            'specialty': 'Специализация',
+            'grade': 'Квалификация',
+            'education': 'Образование',
+            'experience': 'Опыт работы',
+            'portfolio': 'Ссылка на портфолио',
         }

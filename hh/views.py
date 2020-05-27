@@ -1,13 +1,16 @@
 import datetime
+import re
+from functools import reduce
 
 from django.contrib.auth.views import LoginView
+from django.db.models import Q
 from django.http import Http404, HttpResponseRedirect
 from django.shortcuts import render
 from django.views import View
 from django.views.generic import CreateView
 
 from hh import models
-from hh.forms import ApplicationForm, CompanyEditForm, MyAuthenticationForm, SignUpForm, VacancyEditForm
+from hh.forms import ApplicationForm, CompanyEditForm, MyAuthenticationForm, SignUpForm, VacancyEditForm, ResumeEditForm
 
 
 def get_previous_page(request):
@@ -71,15 +74,14 @@ class VacancyView(View):
 
 class ApplicationSendView(View):
     def post(self, request, vacancy_id, *args, **kwargs):
-        app_form = ApplicationForm(request.POST)
-        if app_form.is_valid():
-            data = app_form.cleaned_data
-            models.Application.objects.create(written_username=data['username'],
-                                              written_phone=data['phone'],
-                                              written_cover_letter=data['cover_letter'],
-                                              user=request.user,
-                                              vacancy=models.Vacancy.objects.get(id=vacancy_id))
 
+        application_form = ApplicationForm(request.POST, request.FILES)
+
+        if application_form.is_valid():
+            application = application_form.save(commit=False)
+            application.user = request.user
+            application.vacancy = models.Vacancy.objects.get(id=vacancy_id)
+            application.save()
             return HttpResponseRedirect(request.path)
 
     def get(self, request, vacancy_id, *args, **kwargs):
@@ -159,10 +161,12 @@ class MyVacancieView(View):
         if len(vacancy_qs) == 0:
             raise Http404
         else:
+            applications = models.Application.objects.filter(vacancy=vacancy_qs.first())
             return render(
                 request, 'hh/vacancy-edit.html',
                 context={'title': 'Вакансии компании | Джуманджи',
-                         'form': VacancyEditForm(instance=vacancy_qs.first())}
+                         'form': VacancyEditForm(instance=vacancy_qs.first()),
+                         'applications': applications}
             )
 
     def post(self, request, vacancy_id, *args, **kwargs):
@@ -216,3 +220,76 @@ class MySignupView(CreateView):
     form_class = SignUpForm
     success_url = 'login'
     template_name = 'hh/register.html'
+
+
+class SearchView(View):
+    def get(self, request, *args, **kwargs):
+        question = request.GET.get('q')
+        print(question)
+        search_context = {}
+        if question is not None:
+            search_vacancies = models.Vacancy.objects.filter(
+                reduce(lambda x, y: x | y, [Q(title__contains=word) for word in re.split(r'\W+', question)]))
+            search_context = {'search_vacancies': search_vacancies}
+        return render(
+            request, 'hh/search.html',
+            context=search_context
+        )
+
+    def post(self, request, *args, **kwargs):
+        question = request.GET.get('q')
+        print("qqq " + question)
+        return render(
+            request, 'hh/search.html',
+            context={}
+        )
+
+
+class MyResumeView(View):
+    def get(self, request, *args, **kwargs):
+        # search my resume
+        # if not found, then create, else edit
+        my_resume_qs = models.Resume.objects.filter(user=request.user)
+        if len(my_resume_qs) == 0:
+            return render(
+                request, 'hh/resume-create.html',
+                context={'title': 'Создать резюме | Джуманджи'}
+            )
+        else:
+            return render(
+                request, 'hh/resume-edit.html',
+                context={'title': 'Моя компания | Джуманджи',
+                         'form': ResumeEditForm(instance=my_resume_qs.first()
+                                                )}
+            )
+
+    def post(self, request, *args, **kwargs):
+        my_resume_qs = models.Resume.objects.filter(user=request.user)
+        resume_form = ResumeEditForm(request.POST)
+
+        if resume_form.is_valid():
+            # здесь мы сохраняем новую или существующую компанию
+            if len(my_resume_qs) == 0:
+                resume = resume_form.save(commit=False)
+                resume.user = request.user
+                resume.save()
+                update = False
+            else:
+                resume = my_resume_qs.first()
+                resume_form = ResumeEditForm(request.POST, instance=resume)
+                resume_form.save()
+                update = True
+            return render(
+                request, 'hh/resume-edit.html',
+                context={'title': 'Мое резюме | Джуманджи',
+                         'form': ResumeEditForm(instance=resume),
+                         'update': update}
+            )
+        else:
+            # сюда мы попадем, если нажмем создать резюме
+            return render(
+                request, 'hh/resume-edit.html',
+                context={'title': 'Моя компания | Джуманджи',
+                         'form': ResumeEditForm(initial={'name': request.user.first_name,
+                                                         'surname': request.user.last_name})}
+            )
