@@ -1,1 +1,1 @@
-web: gunicorn hh.wsgi
+web: gunicorn myhh.wsgi
