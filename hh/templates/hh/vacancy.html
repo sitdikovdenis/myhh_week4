@@ -34,9 +34,7 @@
 						
 						
 						{% if not request.user.is_authenticated %}
-						  <form class="float-right" action="/login" method="get">{% csrf_token %}
 							<button type="button" class="btn btn-outline-info">Войти</button>
-						  </form>
 						{% else %}		
                           <input type="submit" class="btn btn-primary mt-4 mb-2" value="Отправить отклик">
 						{% endif %}
