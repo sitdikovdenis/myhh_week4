@@ -24,7 +24,7 @@ SECRET_KEY = 'ieiq)48wm*22d!w55yxsn(v#b^@3ahom+7%a6f+^-%sltbok+$'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = ['127.0.0.1']
 
 # Application definition
 
@@ -116,7 +116,7 @@ LANGUAGE_CODE = 'ru-RU'
 
 STATIC_URL = '/static/'
 STATIC_ROOT = 'static'
-STATICFILES_DIRS = ( os.path.join('static'), )
+STATICFILES_DIRS = (os.path.join('static'), )
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = 'media'
