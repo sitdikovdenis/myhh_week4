@@ -30,19 +30,17 @@
 							{{ field }}	
 						  </div>
 						{% endfor %}
-                        
-						
-						
-						{% if not request.user.is_authenticated %}
-							<button type="button" class="btn btn-outline-info">Войти</button>
-						{% else %}		
+                        											
+						{% if request.user.is_authenticated %}						  		
                           <input type="submit" class="btn btn-primary mt-4 mb-2" value="Отправить отклик">
-						{% endif %}
-						
-						
-						
+						{% endif %}						
                     </div>
-                </form>				
+                </form>	
+				{% if not request.user.is_authenticated %}	
+				<form class="float-right" action="/login" method="get">{% csrf_token %}
+					<button type="button" class="btn btn-outline-info">Войти</button>
+				  </form>
+				{% endif %}				
             </section>
         </div>
     </div>
